@@ -175,18 +175,23 @@ function MiniBook({
           height: h,
           marginLeft: -w / 2,
           marginTop: -h / 2,
-          transform: "rotateX(14deg) rotateY(-24deg)",
-          opacity: locked ? 0.55 : 1,
-          filter: locked ? "grayscale(0.7)" : "none",
+          transform: "rotateX(12deg) rotateY(-26deg)",
+          opacity: locked ? 0.6 : 1,
+          filter: locked ? "grayscale(0.85) brightness(0.9)" : "none",
         }}
       >
         {/* back cover */}
         <span
           className="absolute rounded-md"
-          style={{ inset: 0, background: coverDark, transform: "translateZ(-16px)" }}
+          style={{
+            inset: 0,
+            background: `linear-gradient(135deg, ${coverDark}, oklch(0.26 0.06 150))`,
+            transform: "translateZ(-18px)",
+            boxShadow: "0 16px 30px -10px rgba(0,0,0,0.5)",
+          }}
         />
-        {/* page thickness */}
-        {Array.from({ length: 6 }).map((_, i) => (
+        {/* gilded page block (thickness) */}
+        {Array.from({ length: 8 }).map((_, i) => (
           <span
             key={i}
             className="absolute rounded-r-sm"
@@ -194,49 +199,51 @@ function MiniBook({
               inset: 0,
               left: 3,
               background: i % 2 === 0 ? paper : paperEdge,
-              transform: `translateZ(${-(i + 1) * 2.4}px)`,
+              transform: `translateZ(${-(i + 1) * 2.2}px)`,
             }}
           />
         ))}
-        {/* fore-edge */}
+        {/* gold fore-edge gilt */}
         <span
-          className="absolute rounded-r-sm"
+          className="absolute"
           style={{
             right: 0,
-            top: 2,
-            width: 14,
-            height: h - 4,
-            background: `repeating-linear-gradient(0deg, ${paperEdge}, ${paperEdge} 1.5px, ${paper} 1.5px, ${paper} 3px)`,
-            transform: "rotateY(86deg) translateZ(7px)",
+            top: 2.5,
+            width: 18,
+            height: h - 5,
+            background: `repeating-linear-gradient(0deg, ${goldSoft}, ${goldSoft} 1px, ${gold} 1px, ${gold} 2.5px)`,
+            transform: "rotateY(84deg) translateZ(9px)",
             transformOrigin: "right center",
+            borderRadius: "0 2px 2px 0",
           }}
         />
 
-        {/* front cover */}
+        {/* front cover — uses the real embossed cover artwork */}
         <span
           className="absolute overflow-hidden rounded-md"
           style={{
             inset: 0,
-            background: `linear-gradient(135deg, ${cover}, ${coverDark})`,
-            boxShadow: "inset 0 0 22px rgba(0,0,0,0.35)",
+            backgroundImage: "url(/islamic-cover.png)",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            boxShadow: "inset 0 0 26px rgba(0,0,0,0.45), inset 0 1px 1px rgba(255,255,255,0.15)",
             transform: "translateZ(2px)",
           }}
         >
-          {/* spine highlight */}
+          {/* spine shadow on the left edge */}
           <span
             className="absolute left-0 top-0 h-full"
-            style={{ width: 5, background: "rgba(0,0,0,0.35)" }}
+            style={{ width: 8, background: "linear-gradient(90deg, rgba(0,0,0,0.55), transparent)" }}
           />
-          {/* gold frame */}
+          {/* glossy sheen */}
           <span
-            className="absolute rounded-sm"
-            style={{ inset: 7, border: `1px solid ${gold}`, opacity: 0.7 }}
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(115deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0) 38%, rgba(255,255,255,0) 100%)",
+            }}
           />
-          {/* crescent emblem */}
-          <span className="absolute inset-0 flex items-center justify-center">
-            <Crescent size={size * 0.3} color={gold} />
-          </span>
-          {/* progress pips at the base of the spine */}
+          {/* progress pips at the base */}
           {!completed && total > 1 && (
             <span className="absolute bottom-2 left-1/2 flex -translate-x-1/2 gap-1">
               {Array.from({ length: total }).map((_, i) => (
@@ -246,7 +253,8 @@ function MiniBook({
                   style={{
                     width: 4,
                     height: 4,
-                    background: i < progress ? gold : "rgba(255,255,255,0.3)",
+                    background: i < progress ? gold : "rgba(255,255,255,0.35)",
+                    boxShadow: i < progress ? `0 0 4px ${gold}` : "none",
                   }}
                 />
               ))}
@@ -254,13 +262,40 @@ function MiniBook({
           )}
         </span>
 
+        {/* hanging bookmark ribbon on the current node */}
+        {!completed && !locked && (
+          <span
+            className="absolute"
+            style={{
+              top: -3,
+              right: w * 0.24,
+              width: 8,
+              height: h * 0.62,
+              background: `linear-gradient(${gold}, ${goldSoft})`,
+              transform: "translateZ(3px)",
+              clipPath: "polygon(0 0, 100% 0, 100% 100%, 50% 82%, 0 100%)",
+              boxShadow: "0 2px 4px rgba(0,0,0,0.3)",
+            }}
+          />
+        )}
+
         {/* completion seal stamped onto the closed cover */}
         {completed && (
           <span
             className={`absolute inset-0 flex items-center justify-center ${stamp ? "seal-stamp" : ""}`}
             style={{ transform: "translateZ(4px)" }}
           >
-            <Seal size={size * 0.5} />
+            <span
+              className="flex items-center justify-center rounded-full"
+              style={{
+                width: size * 0.52,
+                height: size * 0.52,
+                background: "radial-gradient(circle at 35% 30%, oklch(0.5 0.1 150), oklch(0.34 0.08 150))",
+                boxShadow: "0 4px 10px rgba(0,0,0,0.4), inset 0 1px 2px rgba(255,255,255,0.2)",
+              }}
+            >
+              <Seal size={size * 0.34} />
+            </span>
           </span>
         )}
       </span>
@@ -327,23 +362,37 @@ function LessonPanel({
           boxShadow: "0 30px 70px -25px rgba(0,0,0,0.6)",
         }}
       >
-        {/* header strip */}
-        <div className="relative px-6 pb-5 pt-6 text-center" style={{ background: cover, color: paper }}>
-          <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: goldSoft }}>
-            {lesson.tag}
-          </p>
-          <h2 className="mt-1 text-balance font-serif text-xl font-bold">{lesson.title}</h2>
+        {/* header strip — embossed cover texture behind a dark veil */}
+        <div className="relative overflow-hidden px-6 pb-5 pt-6 text-center" style={{ color: paper }}>
+          <span
+            className="absolute inset-0"
+            style={{
+              backgroundImage: "url(/islamic-cover.png)",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
+          />
+          <span className="absolute inset-0" style={{ background: "oklch(0.34 0.08 150 / 0.82)" }} />
+          <div className="relative">
+            <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: goldSoft }}>
+              {lesson.tag}
+            </p>
+            <h2 className="mt-1 text-balance font-serif text-xl font-bold">{lesson.title}</h2>
 
-          {/* progress bar */}
-          <div className="mx-auto mt-4 h-1.5 w-40 overflow-hidden rounded-full" style={{ background: "rgba(255,255,255,0.25)" }}>
+            {/* progress bar */}
             <div
-              className="h-full rounded-full transition-all duration-500"
-              style={{ width: `${(done / total) * 100}%`, background: gold }}
-            />
+              className="mx-auto mt-4 h-1.5 w-40 overflow-hidden rounded-full"
+              style={{ background: "rgba(255,255,255,0.25)" }}
+            >
+              <div
+                className="h-full rounded-full transition-all duration-500"
+                style={{ width: `${(done / total) * 100}%`, background: gold }}
+              />
+            </div>
+            <p className="mt-1.5 text-xs" style={{ color: goldSoft }}>
+              {done} / {total} sayfa
+            </p>
           </div>
-          <p className="mt-1.5 text-xs" style={{ color: goldSoft }}>
-            {done} / {total} sayfa
-          </p>
         </div>
 
         {/* page area */}
@@ -500,14 +549,6 @@ function Sparkles({ size }: { size: number }) {
 }
 
 /* ------------------------------- tiny marks ------------------------------ */
-function Crescent({ size, color }: { size: number; color: string }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M16 3a9 9 0 1 0 5 16.5A7 7 0 0 1 16 3z" fill={color} />
-    </svg>
-  )
-}
-
 function Seal({ size }: { size: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 48 48" aria-hidden="true">
